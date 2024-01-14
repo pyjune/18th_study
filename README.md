@@ -13,8 +13,37 @@
 ### [민웅](<./문자의 빈도/민웅.py>)
 
 ```py
+import sys
+input = sys.stdin.readline
 
+N = int(input().strip())
 
+for _ in range(N):
+    msg = input().strip()
+    msg_dict = {}
+
+    max_cnt = 0
+    ans = ''
+    ans_check = False
+    for i in range(len(msg)):
+        tmp = msg[i]
+        if tmp in msg_dict.keys():
+            msg_dict[tmp] += 1
+        else:
+            msg_dict[tmp] = 1
+
+    for key, item in msg_dict.items():
+        if item > max_cnt:
+            ans = key
+            max_cnt = item
+            ans_check = False
+        elif item == max_cnt:
+            ans_check = True
+    
+    if ans_check:
+        print('?')
+    else:
+        print(ans)
 ```
 
 ### [상미](<./문자의 빈도/상미.py>)
@@ -71,7 +100,45 @@ if __name__ == "__main__":
 ### [민웅](./코드트리%마트/민웅.py)
 
 ```py
+import sys
+import heapq
+# from collections import deque
+input = sys.stdin.readline
 
+N, K = map(int, input().split())
+customers = []
+
+for i in range(1, N+1):
+    t, s = map(int, input().split())
+    heapq.heappush(customers, [t, s, i])
+
+
+first = heapq.heappop(customers)
+time = first[0]
+q = []
+heapq.heappush(q, [-1*first[1], first])
+ans = []
+
+while customers or q:
+    while True:
+        if customers:
+            tmp = heapq.heappop(customers)
+            # print("tmp는", tmp)
+            if tmp[0] <= time:
+                # print("들어간 tmp", tmp)
+                heapq.heappush(q, [-1*tmp[1], tmp])
+            else:
+                heapq.heappush(customers, tmp)
+                # print(q)
+                break
+        else:
+            break
+    # q.sort(key=lambda x: (-1*x[1]))
+    cus = heapq.heappop(q)
+    ans.append(cus[1][2])
+    time += K
+    # print(time)
+print(*ans)
 ```
 
 ### [상미](./코드트리%마트/상미.py)
@@ -132,8 +199,38 @@ if __name__ == "__main__":
 ### [민웅](<./기차 놀이/민웅.py>)
 
 ```py
+import sys
+from collections import deque
+# input = sys.stdin.readline
+# 1번 -> 앞블럭을 뒤로, 2번 -> 뒷블럭을 앞으로, 3번 -> 두 개 선로 이어붙이기
 
+N, M, Q = map(int, input().split())
+tracks = [deque() for _ in range(M)]
 
+idx = 1
+for i in range(M):
+    for j in range(N//M):
+        tracks[i].append(idx)
+        idx += 1
+# print(tracks)
+for _ in range(Q):
+    p, *num = map(int, input().split())
+    if p == 1:
+        if tracks[num[0]]:
+            tracks[num[0]].append(tracks[num[0]].popleft())
+    elif p == 2:
+        if tracks[num[0]]:
+            tracks[num[0]].appendleft(tracks[num[0]].pop())
+    else:
+        a, b = num[0], num[1]
+        while tracks[a]:
+            tracks[b].appendleft(tracks[a].pop())
+    
+for t in tracks:
+    if t:
+        print(*t)
+    else:
+        print(-1)
 ```
 
 ### [상미](<./기차 놀이/상미.py>)
