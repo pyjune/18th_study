@@ -55,7 +55,30 @@ for _ in range(N):
 ### [병국](<./문자의 빈도/병국.py>)
 
 ```py
-
+n = int(input())
+for _ in range(n):
+    dict = {}
+    arr = list(input())
+    for i in arr:
+        if i in dict:
+            dict[i] += 1
+        else:
+            dict[i] = 1
+    maxx = 0
+    answer = ''
+    flag = True
+    for i in (dict):
+        # print(dict[i])
+        if dict[i] > maxx:
+            maxx = dict[i]
+            answer = i
+            flag = True
+        elif dict[i] == maxx:
+            flag = False
+    if flag == True:
+        print(answer)
+    else:
+        print("?")
 ```
 
 ### [성구](./문자의%빈도/성구.py)
@@ -242,7 +265,50 @@ for t in tracks:
 ### [병국](<./기차 놀이/병국.py>)
 
 ```py
+from collections import deque
+n,m,q = map(int,input().split())
+# 1 2 3
+# 4 5 6
 
+# 첫번째놀이 > 1 2 3 >>> 2 3 1
+# 두번째놀이 > 1 2 3 >>> 3 1 2 
+#  2 3 1 > 3 1 2
+#  456 > 645
+# 세번째놀이 
+train = [deque() for _ in range(m)]
+idx = 1
+for i in range(len(train)):
+    for j in range(n//m):
+        train[i].append(idx)
+        idx+=1
+# print(train)
+
+
+
+for _ in range(q):
+    arr = list(map(int,input().split()))
+    # arr = [3,0,1]
+    if arr[0] == 1:
+        if train[arr[1]]:
+            train[arr[1]].append(train[arr[1]].popleft())
+    elif arr[0] == 2:
+        if train[arr[1]]:
+            train[arr[1]].appendleft(train[arr[1]].pop())
+    elif arr[0] == 3:
+        train[arr[2]] = train[arr[1]]+train[arr[2]]
+        train[arr[1]] = deque()
+# print(train)
+        # aa = train.pop()
+        # print(aa,'sad')
+        # print(train,'asdqqq')\
+# print(train)
+for i in range(len(train)):
+    if len(train[i]) == 0:
+        print(-1)
+    else:
+        for j in train[i]:
+            print(j, end= ' ')
+        print()
 ```
 
 ### [성구](./기차%놀이/성구.py)
@@ -322,7 +388,61 @@ if __name__ == "__main__":
 ### [병국](<./사다리 조작/병국.py>)
 
 ```py
+def check():
+    for i in range(N):
+        now = i
+        for j in range(H):
+            if ladder[j][now] == 1:
+                now += 1
+            elif now >= 1 and ladder[j][now-1] == 1:
+                now -= 1
+        # 하나라도 시작이랑 도착 다르면 바로 리턴
+        if now != i:
+            return False
+    return True
 
+def back(cnt, x, y):
+    global answer
+    if check(): # True면 된다는거
+        answer = min(cnt,answer)
+        return
+    elif cnt == 3 or answer <= cnt:
+        return
+
+    # 가로선 탐색해보자,
+    for i in range(x, H):
+        # 아직 x행 보고 있으면
+        if i == x:
+            # 가로선 고정
+            tmp = y
+        else:
+            tmp = 0
+        # 세로선
+        for j in range(tmp, N-1):
+            # 내위치, 오른쪽위치에 사다리없으면
+            if ladder[i][j] == 0 and ladder[i][j+1] == 0:
+                # 근데 왼쪽에있다면..? 일직선되니까 패스
+                if j > 0 and ladder[i][j-1] == 1:
+                    continue
+                ladder[i][j] = 1
+                # 행은 같은데 열은 두칸뒤로 가야된다, 일직선 되면 안되니까.
+                back(cnt+1,i,j+2)
+                ladder[i][j] = 0
+
+
+N, M, H = map(int,input().split())
+ladder = [[0]*(N) for _ in range(H)]
+for _ in range(M):
+    a,b = map(int,input().split())
+    ladder[a-1][b-1] = 1
+# print(ladder)
+
+answer = 4
+back(0, 0, 0)
+if answer < 4:
+    print(answer)
+else:
+    print(-1)
 ```
 
 ### [성구](<./사다리 조작/성구.py>)
@@ -396,146 +516,41 @@ if __name__ == "__main__":
 
 ## 용어 정리
 
-### Spanning Tree (신장 트리)
+### 백트래킹
 
-- **정의**: 주어진 그래프의 모든 정점을 포함하면서 사이클이 없는 부분 그래프.
-- **중요성**: 신장 트리를 통해 그래프의 구조를 단순화시키고, 필요한 정보만을 추출하기 위함
-- **속성**:
-  - 원래 그래프의 모든 정점을 포함해야한다.
-  - 정확히 (정점 수 - 1)개의 간선을 가져야한다.
-  - 사이클을 형성하지 않는다.
+- **정의**: 모든 가능한 경우의 수 중에서 해를 찾는 방식
+ But
 
-### Minimum Spanning Tree (최소 신장 트리)
+- **DFS와의 차이점**: 해가 될 수 없는 경우를 조기에 배제함으로써, 불필요한 경우의 수를 줄이고 효율성을 높이는 알고리즘
 
-![MST](./images/mst.png)
+- **특징**:
+  - 가능한 모든 해를 시도하지만, 해가 유망하지 않다고 판단되면 다른 경로를 탐색
 
-- **정의**: 가능한 신장 트리(Spanning Tree) 중에서 간선의 가중치 합이 최소인 신장 트리.
-- **중요성**: 최소 비용 문제를 해결하는 데 사용되며 주로 **네트워크 설계**, **도로 건설**, **전력망 구축** 등 다양한 분야에서 응용가능
-- **대표알고리즘 예**: [Kruskal 알고리즘](#Kruskal-알고리즘), [Prim 알고리즘](#prim-알고리즘).
-- **속성**:
-  - 모든 정점을 포함하면서 최소한의 비용으로 연결합니다.
-  - 가중치가 가장 낮은 간선부터 선택하여 구성한다.(그리디 방법).
+### ex) Air 라는 단어를 찾는 과정
 
-## 대표 알고리즘
+![BackTracking](./images/backtracking.jpg)
 
-### Kruskal 알고리즘
 
-- **탐색 방법**: 가장 가벼운 가중치의 간선부터 선택하여 MST를 찾는 알고리즘.
-- **구현 방법**
-  1. 간선 정렬 및 정점 초기화
-  2. 간선 선택 후 정점 병합
-  3. n-1개의 간선이 선택될 때까지(모든 정점이 선택될 때까지) 2번단계 반복
+## 대표 유형 N-Queen
 
-```py
-# 구현
+![N-Queen](./images/nqueen.png)
 
-# 주어진 노드의 루트노드 반환
-# 부모노드를 찾아가며, 루트노드(자기 자신을 가리키고있는 노드)를 찾음
-def findset(node):
-    while parent[node] != node:
-        node = parent[node]
-    return node
 
-# x, y 노드를 같은 그룹으로 병합
-def union(x, y):
-    parent[findset(y)] = findset(x)
+### 예시문제
 
-def kruskal(graph, V):
-    # 그래프의 간선을 가중치에 따라 오름차순으로 정렬
-    graph.sort(key=lambda x: x[2])
+- 다음 두 가지 규칙을 지키면서 이진수를 만들고자 한다. 가능한 서로 다른 이진수의 개수를 구하는 프로그램을 작성하시오.
 
-    # 각 정점에 대한 부모 초기화
-    parent = [i for i in range(V+1)]
+- 규칙1 : 길이는 N이다.
 
-    mst = []
-    total_cost = 0
+- 규칙2 : 1이 연속으로 존재하면 안된다.
 
-    for edge in graph:
-        u, v, weight = edge
-        # 사이클이 형성되지 않는 경우에만 간선 선택
-        if findset(u) != findset(v):
-            union(u, v)
-            mst.append(edge)
-            total_cost += weight
+- 예를 들어 길이가 3이라면, 길이가 3인 이진수는 다음과 같이 000, 001, 010, 011, 100, 101, 110, 111 8가지이다. 
 
-    return mst, total_cost
+- 이 중 1이 연속으로 사용된 3개를 제외한 000, 001, 010, 100, 101 의 5가지가 답이다.
 
-graph = []
-for _ in range(M):
-    s, g, w = map(int, input().split())
-    graph.append([s, g, w])
+## 
+input - 3
 
-kruskal(graph, V)
-
-```
-
-### Prim 알고리즘
-
-- **탐색 방법**: 시작 정점에서부터 점차 그래프를 확장해 나가며 MST를 찾는 알고리즘.
-- **구현 방법**
-  1. 임의의 시작정점 선택 후 간선그룹 생성(heapq)
-  2. 간선 선택 - MST 집합에 속한 정점과 속하지 않은 정점을 연결하는 간선 중 최소가중치 간선을 선택함.
-  3. 추가된 정점에 연결된 새로운 간선 추가 및 2번 과정 반복
-  4. 큐가 비거나 모든정점이 MST에 포함되면 종료
-
-```py
-# 구현
-import heapq
-
-def prim(graph, start, V):
-    visited = [0] * (V+1)
-    min_heap = [(0, start)]  # (가중치, 정점)
-    total_cost = 0
-
-    while min_heap:
-        weight, u = heapq.heappop(min_heap)
-        if not visited[u]:
-            visited[u] = 1
-            total_cost += weight
-            for v, w in graph[u]:
-                if not visited[v]:
-                    heapq.heappush(min_heap, (w, v))
-
-    return total_cost
-
-graph = [[] for _ in range(V+1)]
-# 그래프에 정점 별 간선정보 (u, v, w) 추가
-cost = prim(graph, 1, V)
-
-```
-
-## Kruskal vs Prim (https://8iggy.tistory.com/160)
-
-- 희소 그래프: 정점들 사이에 간선이 상대적으로 적게 존재하는 그래프. 예를 들어, 정점의 수에 비해 간선의 수가 훨씬 적은 경우.
-
-- 밀집 그래프: 정점들 사이에 많은 수의 간선이 존재하는 그래프. 거의 모든 정점 쌍 사이에 간선이 존재하는 경우.
-
-### Kruskal
-
--> 간선의 수가 적은 희소 그래프에 적합. 연결 요소 파악에 유용.
-
-장점:
-
-- 구현이 간단하고 메모리 사용이 효율적.
-- 간선의 수가 적을수록 더 효과적.
-
-단점:
-
-- 간선의 수가 많은 밀집 그래프에서는 비효율적.
-- 모든 간선을 정렬해야 하므로 초기에 시간이 소요됨.
-
-### Prim
-
--> 간선의 수가 많은 밀집 그래프에 적합. 작은 그래프에서 빠른 성능.
-
-장점:
-
-- 밀집 그래프에서 효율적.
-- 최소 힙을 사용하여 동적으로 간선 선택 가능.
-
-단점:
-
-- 메모리 사용량이 더 많음.
-- 정점의 수가 많을수록 성능 저하 가능성 있음.
+output - ['000', '001', '010', '100', '101']
 
 </details>
